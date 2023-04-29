@@ -36,3 +36,15 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes fadeIn {
+  25% { opacity: 1; background-color: gray; }
+  0% { opacity: 0; }
+  25% { opacity: 1; background-color: gray; }
+}
+
+.content {
+  animation: fadeIn 2s;
+  border: 1px solid red;
+  height: fit-content;
+}
