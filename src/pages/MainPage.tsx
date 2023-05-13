@@ -1,10 +1,11 @@
 import { Icon, Typography } from "@mui/material";
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Chart } from "@andyag24/chart-test";
 
-const ID = 'X18uNSRXyxYLHnIWiRbPR0vx';
-const SECRET = '2jBZTHwbWitytWll4Mu7CSJLB0X5fW0lu_d2rLrCHpZ-BXgl';
+const ID = "X18uNSRXyxYLHnIWiRbPR0vx";
+const SECRET = "2jBZTHwbWitytWll4Mu7CSJLB0X5fW0lu_d2rLrCHpZ-BXgl";
 
 const upwardArrow = <ArrowUpwardIcon color="success" />;
 const downwardArrow = <ArrowDownwardIcon color="error" />;
@@ -13,9 +14,11 @@ export const MainPage = () => {
   const [data, setData] = useState<any>(null);
   const socket = useRef<WebSocket | null>(null);
   const [prevData, setPrevData] = useState<any>(null);
-  
+
   useEffect(() => {
-    socket.current = new WebSocket(`wss://ws.bitmex.com/realtime?api_token=${ID}`);
+    socket.current = new WebSocket(
+      `wss://ws.bitmex.com/realtime?api_token=${ID}`
+    );
 
     const obj = { op: "subscribe", args: ["instrument:ETHUSD"] };
 
@@ -38,24 +41,57 @@ export const MainPage = () => {
     socket.current.onmessage = (event) => {
       const socketData = JSON.parse(event.data).data?.[0];
       console.log(socketData);
-      
-      setData((prevValue: any) => { 
-        if (prevValue?.fairPrice) setPrevData(prevValue); 
+
+      setData((prevValue: any) => {
+        if (prevValue?.fairPrice) setPrevData(prevValue);
         return socketData;
       });
     };
   };
 
-  const arrow = useMemo(() => (data?.fairPrice > prevData?.fairPrice) ? upwardArrow : ((data?.fairPrice === prevData?.fairPrice) ? null : downwardArrow), [data]);
+  const arrow = useMemo(
+    () =>
+      data?.fairPrice > prevData?.fairPrice
+        ? upwardArrow
+        : data?.fairPrice === prevData?.fairPrice
+        ? null
+        : downwardArrow,
+    [data]
+  );
 
   return (
     <>
-      <div style={{ width: '100vw', height: '50vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        { arrow }
+      <div
+        style={{
+          width: "100vw",
+          height: "50vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {arrow}
         <Typography>
           {data?.fairPrice ? data?.fairPrice : prevData?.fairPrice}
         </Typography>
+        <Chart
+          viewHeight={250}
+          viewWidth={500}
+          dpiRatio={2}
+          options={{ line: { width: 2 }, padding: 50 }}
+          lines={[
+            {
+              color: "green",
+              width: 2,
+              coords: [
+                { x: 50, y: 100 },
+                { x: 250, y: 0 },
+                { x: 300, y: 125 },
+              ],
+            },
+          ]}
+        />
       </div>
     </>
   );
-}
+};
